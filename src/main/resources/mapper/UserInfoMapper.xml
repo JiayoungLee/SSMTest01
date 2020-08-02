@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hqyj.dao.UserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.hqyj.pojo.UserInfo">
+        <id column="u_id" property="uId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="r_id" property="rId" jdbcType="INTEGER"/>
+        <association property="role" javaType="com.hqyj.pojo.Role">
+            <id column="r_id" property="rId" jdbcType="INTEGER"/>
+            <result column="r_name" property="rName" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+    u_id, user_name, r_id
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+       SELECT
+        userinfo.u_id,
+        userinfo.user_name,
+        userinfo.r_id,
+        role.r_id,
+        role.r_name
+        FROM
+        userinfo
+        INNER JOIN role ON userinfo.r_id = role.r_id
+        where u_id = #{uId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.hqyj.pojo.UserInfo">
+        SELECT
+        userinfo.u_id,
+        userinfo.user_name,
+        userinfo.r_id,
+        role.r_id,
+        role.r_name
+        FROM
+        userinfo
+        INNER JOIN role ON userinfo.r_id = role.r_id
+        <trim prefix=" where" suffix=" " suffixOverrides="and">
+            <if test="userName!=''and userName!=null ">
+                user_name=#{userName} and
+            </if>
+        </trim>
+        order by userinfo.u_id desc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from userinfo
+    where u_id = #{uId,jdbcType=INTEGER}
+  </delete>
+
+    <delete id="deleteAll">
+        delete from userinfo where u_id in (
+        <foreach collection="list" item="x" separator=",">
+            #{x}
+        </foreach>
+        )
+    </delete>
+
+    <insert id="insert" parameterType="com.hqyj.pojo.UserInfo">
+    insert into userinfo (u_id, user_name, r_id
+      )
+    values (#{uId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{rId,jdbcType=INTEGER}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.hqyj.pojo.UserInfo">
+        insert into userinfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uId != null">
+                u_id,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="rId != null">
+                r_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uId != null">
+                #{uId,jdbcType=INTEGER},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="rId != null">
+                #{rId,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hqyj.pojo.UserInfo">
+        update userinfo
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="rId != null">
+                r_id = #{rId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where u_id = #{uId,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.hqyj.pojo.UserInfo">
+    update userinfo
+    set user_name = #{userName,jdbcType=VARCHAR},
+      r_id = #{rId,jdbcType=INTEGER}
+    where u_id = #{uId,jdbcType=INTEGER}
+  </update>
+</mapper>
